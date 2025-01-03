@@ -1,6 +1,6 @@
 local M = {}
 local config = require("deepseek.config")
-local api = require("deepseek")
+local api = require("deepseek.api")
 
 function M.setup()
   local cfg = config.get_config()
@@ -32,20 +32,11 @@ function M.setup()
     end
   end, {})
 
-  -- Set up keymaps
-  if cfg.keymaps then
-    vim.keymap.set("n", cfg.keymaps.generate, ":DeepseekGenerate ", {noremap = true})
-    vim.keymap.set("v", cfg.keymaps.optimize, ":DeepseekOptimize<CR>", {noremap = true})
-    vim.keymap.set("v", cfg.keymaps.analyze, ":DeepseekAnalyze<CR>", {noremap = true})
-    vim.keymap.set("n", cfg.keymaps.chat, ":DeepseekChat ", {noremap = true})
-  end
-end
-
-  -- 添加对话命令
+  -- Chat command
   vim.api.nvim_create_user_command("DeepseekChat", function(opts)
     local cfg = config.get_config()
     local prompt = table.concat(opts.fargs, " ")
-    local response = api.chat(prompt)
+    local response = api.chat(prompt, cfg)
     
     if response and response.choices and response.choices[1] then
       local content = response.choices[1].message.content
@@ -78,5 +69,14 @@ end
       end
     end
   end, {nargs = "*"})
+
+  -- Set up keymaps
+  if cfg.keymaps then
+    vim.keymap.set("n", cfg.keymaps.generate, ":DeepseekGenerate ", {noremap = true})
+    vim.keymap.set("v", cfg.keymaps.optimize, ":DeepseekOptimize<CR>", {noremap = true})
+    vim.keymap.set("v", cfg.keymaps.analyze, ":DeepseekAnalyze<CR>", {noremap = true})
+    vim.keymap.set("n", cfg.keymaps.chat, ":DeepseekChat ", {noremap = true})
+  end
+end
 
 return M
