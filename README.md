@@ -19,15 +19,18 @@ Using packer.nvim:
 ```lua
 use {
   "ne-moj/deepseek.nvim",
+  dependencies = {
+    "numToStr/Comment.nvim",
+  },
   config = function()
-    require('deepseek').setup({
+    require("deepseek").setup({
       api_key = "your-api-key-here", -- Optional configuration
       api_url = "https://api.deepseek.com/v1",
       keymaps = {
         generate = "<leader>dg",
-        optimize = "<leader>do", 
+        optimize = "<leader>do",
         analyze = "<leader>da",
-        chat = "<leader>dc"
+        chat = "<leader>dc",
       },
       chat = {
         system_prompt = "You are a helpful %s-assistant",
@@ -38,30 +41,11 @@ use {
           position = "float",
           width = 0.5,
           height = 0.5,
-          border = "rounded"
-        }
+          border = "rounded",
+        },
       },
-      generate_code = {
-        model = "deepseek-chat",
-        system_prompt = "You are a senior %s developer. You have no time for greetings or politeness, but you code brilliantly. Write ONLY code. Be concise. Explain only if asked.",
-        max_tokens = 2048,
-        temperature = 0.0,
-      },
-      optimize_code = {
-        model = "deepseek-chat",
-        system_prompt = "You’re a senior %s developer. No time for greetings or niceties—just flawless code. Reply ONLY with code. Keep it short. Explain only if explicitly asked.",
-        max_tokens = 2048,
-        temperature = 0.2,
-      },
-      analyze_code = {
-        model = "deepseek-chat",
-        system_prompt = "You’re a senior %s developer. Your goal is to teach beginners, so you explain everything in clear detail. Your programming skills are unmatched. Reply ONLY with explanations. Be concise. Break it down when needed.",
-        user_promt = "Question: %s; Code: %s",
-        max_tokens = 2048,
-        temperature = 0.5,
-      }
     })
-  end
+  end,
 }
 ```
 
@@ -108,6 +92,25 @@ require('deepseek').setup({
       height = 0.5, -- float window height ratio
       border = "rounded"  -- window border style
     }
+  },
+  generate_code = {
+    model = "deepseek-chat",
+    system_prompt = "You are a senior %s developer. You have no time for greetings or politeness, but you code brilliantly. Write ONLY code. Be concise. Explain only if asked.",
+    max_tokens = 2048,
+    temperature = 0.0,
+  },
+  optimize_code = {
+    model = "deepseek-chat",
+    system_prompt = "You’re a senior %s developer. No time for greetings or niceties—just flawless code. Reply ONLY with code. Keep it short. Explain only if explicitly asked.",
+    max_tokens = 2048,
+    temperature = 0.2,
+  },
+  analyze_code = {
+    model = "deepseek-chat",
+    system_prompt = "You’re a senior %s developer. Your goal is to teach beginners, so you explain everything in clear detail. Your programming skills are unmatched. Reply ONLY with explanations. Be concise. Break it down when needed.",
+    user_promt = "Question: %s; Code: %s",
+    max_tokens = 2048,
+    temperature = 0.5,
   }
 })
 ```
