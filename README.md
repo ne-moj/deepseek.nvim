@@ -55,7 +55,7 @@ use {
 
 - `:DeepseekGenerate <prompt>` - Generate code from natural language prompt
 - `:DeepseekOptimize` - Optimize selected code (visual mode)
-- `:DeepseekAnalyze` - Analyze selected code (visual mode)
+- `:DeepseekAnalyze <prompt>` - Analyze selected code (visual mode), prompt is optional
 - `:DeepseekChat <message>` - Start a chat with the AI
 
 ### Keybindings (default)
@@ -81,7 +81,7 @@ require('deepseek').setup({
   temperature = 0.7,  -- Creativity level
   enable_ui = true,   -- Enable/disable UI elements
   chat = {
-    system_prompt = "You are a helpful AI assistant",  -- System prompt for chat
+    system_prompt = "You are a helpful %s-assistant",  -- System prompt for chat, %s will be replaced with the programming language
     model = "deepseek-chat", -- deepseek-chat | deepseek-reasoner
     max_history = 10,  -- Maximum conversation history length
     enable_memory = true,  -- Enable conversation memory
