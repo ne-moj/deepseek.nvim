@@ -55,6 +55,8 @@ function M.setup()
 	vim.api.nvim_create_user_command("DeepseekChat", function(opts)
 		local cfg = config.get_config()
 
+		local prompt = table.concat(opts.fargs, " ")
+
 		-- 创建主聊天窗口
 		local chat_width = math.floor(vim.o.columns * cfg.chat.ui.width)
 		local chat_height = math.floor(vim.o.lines * cfg.chat.ui.height * 0.8)
@@ -149,6 +151,11 @@ function M.setup()
 			"└──────────────────────────────────────────────┘",
 			" ",
 		})
+
+		if prompt then
+			vim.api.nvim_buf_set_lines(M.input_buf, 0, -1, false, { prompt })
+			M.send_chat()
+		end
 	end, { nargs = "*" })
 
 	function M.send_chat()
@@ -209,41 +216,6 @@ function M.setup()
 		vim.api.nvim_win_close(M.input_win, true)
 	end
 
-	function prepare_output(content)
-		-- Убираем обёртку ```javascript(или нечто похожее) и```
-		local cleaned = content:gsub("^```.-\n", ""):gsub("```$", "")
-		-- Превращаем \n в реальные переносы строк
-		local unescaped = cleaned:gsub("\\n", "\n")
-		-- Разбиваем строку на массив строк
-		return vim.split(unescaped, "\n")
-	end
-
-	function get_visual_selection()
-		local bufnr = vim.api.nvim_get_current_buf()
-
-		-- Начало и конец выделения
-		local start_pos = vim.fn.getpos("'<") -- {mark, line, col, offset}
-		local end_pos = vim.fn.getpos("'>")
-
-		local start_line = start_pos[2]
-		local start_col = start_pos[3]
-		local end_line = end_pos[2]
-		local end_col = end_pos[3]
-
-		-- Получаем строки между началом и концом
-		local lines = vim.api.nvim_buf_get_lines(bufnr, start_line - 1, end_line, false)
-
-		-- Если выделено в одной строке
-		if #lines == 1 then
-			lines[1] = string.sub(lines[1], start_col, end_col)
-		else
-			lines[1] = string.sub(lines[1], start_col)
-			lines[#lines] = string.sub(lines[#lines], 1, end_col)
-		end
-
-		return lines
-	end
-
 	-- Set up keymaps
 	if cfg.keymaps then
 		vim.keymap.set("n", cfg.keymaps.generate, ":DeepseekGenerate ", { noremap = true })
@@ -251,6 +223,41 @@ function M.setup()
 		vim.keymap.set("v", cfg.keymaps.analyze, ":DeepseekAnalyze<CR>", { noremap = true })
 		vim.keymap.set("n", cfg.keymaps.chat, ":DeepseekChat ", { noremap = true })
 	end
+end
+
+function prepare_output(content)
+	-- Убираем обёртку ```javascript(или нечто похожее) и```
+	local cleaned = content:gsub("^```.-\n", ""):gsub("```$", "")
+	-- Превращаем \n в реальные переносы строк
+	local unescaped = cleaned:gsub("\\n", "\n")
+	-- Разбиваем строку на массив строк
+	return vim.split(unescaped, "\n")
+end
+
+function get_visual_selection()
+	local bufnr = vim.api.nvim_get_current_buf()
+
+	-- Начало и конец выделения
+	local start_pos = vim.fn.getpos("'<") -- {mark, line, col, offset}
+	local end_pos = vim.fn.getpos("'>")
+
+	local start_line = start_pos[2]
+	local start_col = start_pos[3]
+	local end_line = end_pos[2]
+	local end_col = end_pos[3]
+
+	-- Получаем строки между началом и концом
+	local lines = vim.api.nvim_buf_get_lines(bufnr, start_line - 1, end_line, false)
+
+	-- Если выделено в одной строке
+	if #lines == 1 then
+		lines[1] = string.sub(lines[1], start_col, end_col)
+	else
+		lines[1] = string.sub(lines[1], start_col)
+		lines[#lines] = string.sub(lines[#lines], 1, end_col)
+	end
+
+	return lines
 end
 
 return M

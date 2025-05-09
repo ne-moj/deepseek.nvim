@@ -3,7 +3,6 @@ local M = {}
 local api_key = nil
 local api_url = "https://api.deepseek.com/v1"
 local api_chat_model = "deepseek-chat"
-local api_code_model = "deepseek-chat"
 
 function M.setup(cfg)
 	api_key = cfg.api_key
@@ -85,7 +84,7 @@ function M.chat(message, cfg)
 	-- 构建对话上下文
 	local messages = {}
 	if cfg.chat.enable_memory and #chat_history > 0 then
-		table.insert(messages, { role = "system", content = cfg.chat.system_prompt })
+		table.insert(messages, { role = "system", content = (cfg.chat.system_prompt):format(vim.bo.filetype) })
 		for _, msg in ipairs(chat_history) do
 			table.insert(messages, msg)
 		end
@@ -94,7 +93,7 @@ function M.chat(message, cfg)
 
 	-- 发送请求
 	local params = {
-		model = api_chat_model,
+		model = cfg.chat.model,
 		messages = messages,
 		max_tokens = cfg.max_tokens,
 		temperature = cfg.temperature,
