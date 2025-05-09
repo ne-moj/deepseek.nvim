@@ -8,6 +8,7 @@ M.default_config = {
 		generate = "<leader>dg",
 		optimize = "<leader>do",
 		analyze = "<leader>da",
+		translate = "<leader>dt",
 		chat = "<leader>dc", -- 新增对话快捷键
 	},
 	max_tokens = 2048,
@@ -26,6 +27,14 @@ M.default_config = {
 			border = "rounded", -- window border style
 		},
 	},
+	translate_code = {
+		model = "deepseek-chat",
+		system_prompt = "Ты — переводчик. Ты получаешь текст и переводишь его на %s язык. Твой ответ должен содержать только перевод, без пояснений. Если текст уже на нужном языке, возвращай перевод на %s языке. Не добавляй кавычки, если они не были в исходном сообщении.",
+		language = "English",
+		second_language = "Russian",
+		max_tokens = 4096,
+		temperature = 0.2,
+	},
 	generate_code = {
 		model = "deepseek-chat",
 		system_prompt = "Ты — senior %s-разработчик. У тебя нет времени на приветсвтие и вежливости, но ты шикарно умеешь программировать. Пиши ТОЛЬКО код. Будь краток и лаконичен. Объясняй только если попросят.",
@@ -35,14 +44,14 @@ M.default_config = {
 	optimize_code = {
 		model = "deepseek-chat",
 		system_prompt = "Ты — senior %s-разработчик. У тебя нет времени на приветсвтие и вежливости, но ты шикарно умеешь программировать. Пиши ТОЛЬКО код. Будь краток и лаконичен. Объясняй только если попросят.",
-		max_tokens = 2048,
+		max_tokens = 4096,
 		temperature = 0.2,
 	},
 	analyze_code = {
 		model = "deepseek-chat",
 		system_prompt = "Ты — senior %s-разработчик. Ты желаешь научить новичка программировать, поэтому достаточно подробно разъесняешь все, ты настолько хорошо разбираешься в программировании что тебе нет равных. Пиши ТОЛЬКО пояснения. Будь краток и лаконичен. Объясняй.",
 		user_promt = "Вопрос: %s; мой код %s",
-		max_tokens = 2048,
+		max_tokens = 4096,
 		temperature = 0.5,
 	},
 }

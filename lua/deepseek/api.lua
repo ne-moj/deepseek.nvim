@@ -32,6 +32,21 @@ local function make_request(endpoint, params)
 	return vim.fn.json_decode(response)
 end
 
+function M.translate_code(prompt, cfg)
+	local messages = {}
+	table.insert(messages, { role = "system", content = (cfg.system_prompt):format(cfg.language, cfg.second_language) })
+	table.insert(messages, { role = "user", content = prompt })
+
+	local params = {
+		model = cfg.model,
+		messages = messages,
+		max_tokens = cfg.max_token,
+		temperature = cfg.temperature,
+	}
+
+	return make_request("/chat/completions", params)
+end
+
 function M.generate_code(prompt, cfg)
 	local messages = {}
 	table.insert(messages, { role = "system", content = (cfg.system_prompt):format(vim.bo.filetype) })

@@ -6,6 +6,17 @@ local commane_api = require("Comment.api")
 function M.setup()
 	local cfg = config.get_config()
 
+	-- Translate command
+	vim.api.nvim_create_user_command("DeepseekTranslate", function()
+		local translate_text = table.concat(get_visual_selection(), "\n")
+		local response = api.translate_code(translate_text, cfg.translate_code)
+		if response and response.choices and response.choices[1] then
+			local lines = vim.split(response.choices[1].message.content, "\n")
+			-- Inserting
+			print_content_to_visual_selection(lines)
+		end
+	end, { range = true })
+
 	-- Generate command
 	vim.api.nvim_create_user_command("DeepseekGenerate", function(opts)
 		local prompt = table.concat(opts.fargs, " ")
@@ -19,15 +30,12 @@ function M.setup()
 
 	-- Optimize command
 	vim.api.nvim_create_user_command("DeepseekOptimize", function()
-		local bufnr = vim.api.nvim_get_current_buf()
-		local start_pos = vim.fn.getpos("'<")[2]
-		local end_pos = vim.fn.getpos("'>")[2]
-
 		local code = table.concat(get_visual_selection(), "\n")
 		local response = api.optimize_code(code, cfg.optimize_code)
 		if response and response.choices and response.choices[1] then
 			local lines = prepare_output(response.choices[1].message.content)
 			-- Вставляем
+			print_content_to_visual_selection(lines)
 			vim.api.nvim_buf_set_lines(bufnr, start_pos - 1, end_pos, false, lines)
 		end
 	end, { range = true })
@@ -221,6 +229,7 @@ function M.setup()
 		vim.keymap.set("n", cfg.keymaps.generate, ":DeepseekGenerate ", { noremap = true })
 		vim.keymap.set("v", cfg.keymaps.optimize, ":DeepseekOptimize<CR>", { noremap = true })
 		vim.keymap.set("v", cfg.keymaps.analyze, ":DeepseekAnalyze<CR>", { noremap = true })
+		vim.keymap.set("v", cfg.keymaps.translate, ":DeepseekTranslate<CR>", { noremap = true })
 		vim.keymap.set("n", cfg.keymaps.chat, ":DeepseekChat ", { noremap = true })
 	end
 end
@@ -234,27 +243,62 @@ function prepare_output(content)
 	return vim.split(unescaped, "\n")
 end
 
-function get_visual_selection()
+function print_content_to_visual_selection(lines)
 	local bufnr = vim.api.nvim_get_current_buf()
 
 	-- Начало и конец выделения
 	local start_pos = vim.fn.getpos("'<") -- {mark, line, col, offset}
 	local end_pos = vim.fn.getpos("'>")
 
-	local start_line = start_pos[2]
-	local start_col = start_pos[3]
-	local end_line = end_pos[2]
-	local end_col = end_pos[3]
+	local start_line = start_pos[2] - 1
+	local start_col = start_pos[3] - 1
+	local end_line = end_pos[2] - 1
+	local end_col = end_pos[3] - 1
 
-	-- Получаем строки между началом и концом
-	local lines = vim.api.nvim_buf_get_lines(bufnr, start_line - 1, end_line, false)
+	-- Подстраховка: Получаем длину последней строки выделения
+	local end_line_text = vim.api.nvim_buf_get_lines(bufnr, end_line, end_line + 1, false)[1] or ""
+	if end_col > #end_line_text then
+		end_col = #end_line_text
+	end
 
-	-- Если выделено в одной строке
+	vim.api.nvim_buf_set_text(bufnr, start_line, start_col, end_line, end_col, lines)
+end
+
+local function safe_substring(line, start_col, end_col)
+	local utf8_len = vim.fn.strchars(line) -- Количество UTF-8 символов
+
+	-- Adjusting the range if it goes beyond the row boundariesи
+	if start_col > utf8_len then
+		start_col = utf8_len
+	end
+	if end_col > utf8_len then
+		end_col = utf8_len
+	end
+
+	-- Converting to byte indices (important: -1, because str_byteindex works with 0-based indexing))
+	local start_byte = vim.str_byteindex(line, start_col)
+	local end_byte = vim.str_byteindex(line, end_col)
+
+	return string.sub(line, start_byte + 1, end_byte)
+end
+
+function get_visual_selection()
+	local bufnr = vim.api.nvim_get_current_buf()
+	local start_pos = vim.fn.getpos("'<")
+	local end_pos = vim.fn.getpos("'>")
+
+	local start_line = start_pos[2] - 1
+	local start_col = start_pos[3] - 1
+	local end_line = end_pos[2] - 1
+	local end_col = end_pos[3] - 1
+
+	local lines = vim.api.nvim_buf_get_lines(bufnr, start_line, end_line + 1, false)
+
 	if #lines == 1 then
-		lines[1] = string.sub(lines[1], start_col, end_col)
+		lines[1] = safe_substring(lines[1], start_col, end_col)
 	else
-		lines[1] = string.sub(lines[1], start_col)
-		lines[#lines] = string.sub(lines[#lines], 1, end_col)
+		lines[1] = safe_substring(lines[1], start_col, #lines[1])
+		lines[#lines] = safe_substring(lines[#lines], 0, end_col)
 	end
 
 	return lines

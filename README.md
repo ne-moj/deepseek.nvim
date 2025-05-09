@@ -30,6 +30,7 @@ use {
         generate = "<leader>dg",
         optimize = "<leader>do",
         analyze = "<leader>da",
+        translate = "<leader>dt",
         chat = "<leader>dc",
       },
       chat = {
@@ -75,6 +76,7 @@ require('deepseek').setup({
     generate = "<leader>dg",  -- Code generation
     optimize = "<leader>do",  -- Code optimization
     analyze = "<leader>da",   -- Code analysis
+		translate = "<leader>dt", -- AI translate
     chat = "<leader>dc"      -- AI chat
   },
   max_tokens = 2048,  -- Max tokens per request
@@ -111,7 +113,15 @@ require('deepseek').setup({
     user_promt = "Question: %s; Code: %s",
     max_tokens = 2048,
     temperature = 0.5,
-  }
+  },
+	translate_code = {
+		model = "deepseek-chat",
+		system_prompt = "You are a translator. You receive text and translate it into %s language. Your response should contain only the translation, without explanations. If the text is already in the target language, return the translation in %s language. Do not add quotes if they were not in the original message.",
+		language = "English",
+		second_language = "Russian",
+		max_tokens = 4096,
+		temperature = 0.2,
+	}
 })
 ```
 
