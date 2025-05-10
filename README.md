@@ -114,14 +114,14 @@ require('deepseek').setup({
     max_tokens = 2048,
     temperature = 0.5,
   },
-	translate_code = {
-		model = "deepseek-chat",
-		system_prompt = "You are a translator. You receive text and translate it into %s language. Your response should contain only the translation, without explanations. If the text is already in the target language, return the translation in %s language. Do not add quotes if they were not in the original message.",
-		language = "English",
-		second_language = "Russian",
-		max_tokens = 4096,
-		temperature = 0.2,
-	}
+  translate_code = {
+    model = "deepseek-chat",
+    system_prompt = "You are a translator. You receive text and translate it into %s language. Your response should contain only the translation, without explanations. If the text is already in the target language, return the translation in %s language. Do not add quotes if they were not in the original message.",
+    language = "English",
+    second_language = "Russian",
+    max_tokens = 4096,
+    temperature = 0.2,
+  }
 })
 ```
 
