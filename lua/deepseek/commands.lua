@@ -253,7 +253,7 @@ function print_content_to_visual_selection(lines)
 	local start_line = start_pos[2] - 1
 	local start_col = start_pos[3] - 1
 	local end_line = end_pos[2] - 1
-	local end_col = end_pos[3] - 1
+	local end_col = end_pos[3]
 
 	-- Подстраховка: Получаем длину последней строки выделения
 	local end_line_text = vim.api.nvim_buf_get_lines(bufnr, end_line, end_line + 1, false)[1] or ""
