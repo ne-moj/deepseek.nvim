@@ -2,7 +2,6 @@ local M = {}
 
 local api_key = nil
 local api_url = "https://api.deepseek.com/v1"
-local api_chat_model = "deepseek-chat"
 
 function M.setup(cfg)
 	api_key = cfg.api_key
@@ -30,6 +29,49 @@ local function make_request(endpoint, params)
 	})
 
 	return vim.fn.json_decode(response)
+end
+
+local function make_request_async(endpoint, params, callback)
+	local body = vim.fn.json_encode(params)
+	local args = {
+		"-s",
+		"-X",
+		"POST",
+		"-H",
+		"Content-Type: application/json",
+		"-H",
+		"Accept: application/json",
+		"-H",
+		"Authorization: Bearer " .. api_key,
+		"--data-raw",
+		body,
+		api_url .. endpoint,
+	}
+
+	local stdout = vim.uv.new_pipe(false)
+	local stderr = vim.uv.new_pipe(false)
+
+	vim.uv.spawn("curl", { args = args, stdio = { nil, stdout, stderr } }, function()
+		vim.uv.read_stop(stdout)
+		vim.uv.read_stop(stderr)
+		vim.uv.close(stdout)
+		vim.uv.close(stderr)
+	end)
+
+	local data = ""
+
+	vim.uv.read_start(stdout, function(err, chunk)
+		assert(not err, err)
+		if chunk then
+			data = data .. chunk
+		else
+			-- Завершение запроса, вызываем коллбэк
+			vim.schedule(function()
+				local json = vim.fn.json_decode(data)
+				callback(json)
+			end)
+		end
+	end)
 end
 
 function M.translate_code(prompt, cfg)
@@ -95,7 +137,7 @@ end
 -- 对话功能实现
 local chat_history = {}
 
-function M.chat(message, cfg)
+function M.chat(message, cfg, callback)
 	-- 构建对话上下文
 	local messages = {}
 	if cfg.chat.enable_memory and #chat_history > 0 then
@@ -113,24 +155,25 @@ function M.chat(message, cfg)
 		max_tokens = cfg.max_tokens,
 		temperature = cfg.temperature,
 	}
-	local response = make_request("/chat/completions", params)
 
-	-- 更新对话历史
-	if cfg.chat.enable_memory then
-		table.insert(chat_history, { role = "user", content = message })
-		if response and response.choices and response.choices[1] then
-			table.insert(chat_history, {
-				role = "assistant",
-				content = response.choices[1].message.content,
-			})
+	make_request_async("/chat/completions", params, function(response)
+		-- 更新对话历史
+		if cfg.chat.enable_memory then
+			table.insert(chat_history, { role = "user", content = message })
+			if response and response.choices and response.choices[1] then
+				table.insert(chat_history, {
+					role = "assistant",
+					content = response.choices[1].message.content,
+				})
+			end
+			-- Чистим историю чата
+			while #chat_history > cfg.chat.max_history do
+				table.remove(chat_history, 1)
+			end
 		end
-		-- Чистим историю чата
-		while #chat_history > cfg.chat.max_history do
-			table.remove(chat_history, 1)
-		end
-	end
 
-	return response
+		callback(response)
+	end)
 end
 
 return M
