@@ -121,10 +121,9 @@ function M.setup()
 					)
 				)
 			end
-		end)
 
-		-- 滚动到底部
-		vim.api.nvim_win_set_cursor(M.chat_win, { vim.api.nvim_buf_line_count(M.chat_buf), 0 })
+			vim.api.nvim_win_set_cursor(M.chat_win, { vim.api.nvim_buf_line_count(M.chat_buf), 0 })
+		end)
 	end
 
 	function M.close_chat()
@@ -217,13 +216,22 @@ function M.toggle_chat(position)
 	position = position or "float"
 
 	if M.chat_win and vim.api.nvim_win_is_valid(M.chat_win) then
-		vim.api.nvim_win_close(M.chat_win, true)
-		-- M.windows[position] = nil
+		M.close_chat()
 		return
 	end
 
 	if not M.chat_buf then
 		M.chat_buf = vim.api.nvim_create_buf(false, true)
+
+		vim.api.nvim_buf_set_lines(M.chat_buf, 0, -1, false, {
+			" ",
+			"┌──────────────────────────────────────────────┐",
+			"│  Welcome to Deepseek Chat!                   │",
+			"│  Type your message below and press Enter     │",
+			"│  to send. Press Esc to close the window.     │",
+			"└──────────────────────────────────────────────┘",
+			" ",
+		})
 	end
 
 	local width = math.floor(vim.o.columns * 0.5)
@@ -302,14 +310,6 @@ function M.toggle_chat(position)
 	})
 
 	M.chat_win = vim.api.nvim_open_win(M.chat_buf, true, opts)
-	vim.api.nvim_buf_set_lines(M.chat_buf, 0, -1, false, {
-		"┌──────────────────────────────────────────────┐",
-		"│  Welcome to Deepseek Chat!                   │",
-		"│  Type your message below and press Enter     │",
-		"│  to send. Press Esc to close the window.     │",
-		"└──────────────────────────────────────────────┘",
-		" ",
-	})
 
 	vim.api.nvim_set_current_win(M.input_win)
 	vim.api.nvim_set_current_buf(M.input_buf)
@@ -337,38 +337,45 @@ function M.toggle_chat(position)
 	-- 	{ buffer = M.chat_buf, noremap = true, silent = true }
 	-- )
 	vim.keymap.set(
-		{ "n", "i" },
+		{ "n" },
 		"<CR>",
 		[[<Cmd>lua require("deepseek.commands").send_chat()<CR>]],
 		{ buffer = M.input_buf, noremap = true, silent = true }
 	)
 
+	vim.keymap.set(
+		{ "i" },
+		"<C-i>",
+		[[<Cmd>lua require("deepseek.commands").send_chat()<CR>]],
+		{ buffer = M.input_buf, noremap = true, silent = true }
+	)
+
 	-- close window
+	-- vim.api.nvim_buf_set_keymap(
+	-- 	M.chat_buf,
+	-- 	"n",
+	-- 	"<Esc>",
+	-- 	[[<Cmd>lua require("deepseek.commands").close_chat()<CR>]],
+	-- 	{ noremap = true, silent = true }
+	-- )
 	vim.api.nvim_buf_set_keymap(
 		M.chat_buf,
 		"n",
-		"<Esc>",
+		"q",
 		[[<Cmd>lua require("deepseek.commands").close_chat()<CR>]],
 		{ noremap = true, silent = true }
 	)
-	vim.api.nvim_buf_set_keymap(
-		M.chat_buf,
-		"i",
-		"<Esc>",
-		[[<Cmd>lua require("deepseek.commands").close_chat()<CR>]],
-		{ noremap = true, silent = true }
-	)
+	-- vim.api.nvim_buf_set_keymap(
+	-- 	M.input_buf,
+	-- 	"n",
+	-- 	"<Esc>",
+	-- 	[[<Cmd>lua require("deepseek.commands").close_chat()<CR>]],
+	-- 	{ noremap = true, silent = true }
+	-- )
 	vim.api.nvim_buf_set_keymap(
 		M.input_buf,
 		"n",
-		"<Esc>",
-		[[<Cmd>lua require("deepseek.commands").close_chat()<CR>]],
-		{ noremap = true, silent = true }
-	)
-	vim.api.nvim_buf_set_keymap(
-		M.input_buf,
-		"i",
-		"<Esc>",
+		"q",
 		[[<Cmd>lua require("deepseek.commands").close_chat()<CR>]],
 		{ noremap = true, silent = true }
 	)
