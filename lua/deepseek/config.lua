@@ -1,31 +1,63 @@
 local M = {}
 
 M.default_config = {
-	api_key = nil, -- Required
-	api_url = "https://api.deepseek.com/v1",
-	api_code_model = "deepseek-reasoner",
-	keymaps = {
-		generate = "<leader>dg",
-		optimize = "<leader>do",
-		analyze = "<leader>da",
-		translate = "<leader>dt",
-		chat = "<leader>dc", -- 新增对话快捷键
+	config = {
+		order = 0,
+		disable = true,
 	},
-	max_tokens = 2048,
-	temperature = 0.7,
-	enable_ui = true,
+	commands = {
+		disable = true,
+	},
+	api = {
+		order = 1,
+		key = nil,
+		url = "https://api.deepseek.com/v1",
+		default_model = "deepseek-chat",
+	},
+	keymaps = {
+		order = 99,
+		generate = "<leader>ag",
+		optimize = "<leader>ao",
+		analyze = "<leader>aa",
+		translate = "<leader>at",
+		chat = {
+			default = "<leader>acc",
+			popup = "<leader>acp",
+			left = "<leader>acl",
+			right = "<leader>acr",
+			top = "<leader>act",
+			bottom = "<leader>acb",
+		},
+	},
+	ui = {
+		loader = {
+			loader_prefix = "AI готовит ответ ",
+			loader_postfix = "",
+			load_success = "AI ответ готов!",
+		},
+		order = 10,
+		default_position = "float", -- float, left, right, top, bottom
+		width = 0.5, -- float window width ratio
+		height = 0.5, -- float window height ratio
+		min_width = 12, -- минимальная ширина окна чата
+		min_height = 12, -- минимальная высота окна чата
+		border = "rounded", -- window border style
+	},
+	core = {
+		order = 60,
+		model = "deepseek-chat",
+		base_command = {
+			order = 1,
+			enable_memory = true,
+		},
+	},
+	class = {},
+
 	chat = {
 		model = "deepseek-chat",
 		system_prompt = "Ты — AI ассистент помогающий по %s языку программирвоания",
 		max_history = 10,
 		enable_memory = true,
-		ui = {
-			enable = true,
-			position = "float", -- or "right"
-			width = 0.5, -- float window width ratio
-			height = 0.5, -- float window height ratio
-			border = "rounded", -- window border style
-		},
 	},
 	translate_code = {
 		model = "deepseek-chat",
