@@ -14,6 +14,17 @@ function Chat:close()
 	ui.close_chat()
 end
 
+function Chat:before_send(input)
+	-- Тут делаем необходмые действия до отправки
+	ui.clear_input_buf()
+	-- Печатаем в буфер чата сообщение пользователя
+	ui.print_user_request(input)
+end
+
+function Chat:print_ai_response(response)
+	ui.print_user_request(response)
+end
+
 function Chat:setup(config)
 	BaseCommand.setup(self, config)
 

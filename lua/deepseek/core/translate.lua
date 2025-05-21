@@ -2,97 +2,58 @@ local cfg = require("deepseek.config").get_config()
 local class = require("deepseek.class")
 local BaseCommand = require("deepseek.core.base_command")
 local ui = require("deepseek.ui.window")
+local buf = require("deepseek.ui.buffer")
 
 local Translate = class(BaseCommand)
 
-function Translate:run()
-	-- TODO: Get data from buffer
-	-- BaseCommand.run(self)
-end
+Translate.language = "English"
+Translate.second_language = "Russian"
 
-function Chat:close()
-	ui.close_chat()
-end
-
-function Chat:setup(config)
+function Translate:setup(config)
 	BaseCommand.setup(self, config)
+
+	if config then
+		self.language = config.language or self.language
+		self.second_language = config.second_language or self.second_language
+	end
 
 	self:create_user_command()
 	self:keymaps()
 end
 
-function Chat:create_user_command()
-	vim.api.nvim_create_user_command("DeepseekChat", function(opts)
-		if opts.args then
-			ui.set_position(opts.args)
-		end
-		ui.toggle_popup()
-	end, {
-		nargs = "?",
-		complete = function()
-			return { "left", "right", "top", "bottom", "float" }
-		end,
-	})
-end
+function Translate:before_send(input, uuid) end
 
-function Chat:keymaps()
-	vim.keymap.set("n", cfg.keymaps.chat.default or "<leader>acc", ":DeepseekChat<CR>", { noremap = true })
-	if cfg.keymaps.chat.popup then
-		vim.keymap.set("n", cfg.keymaps.chat.popup, ":DeepseekChat float<CR>", { noremap = true })
-	end
-	if cfg.keymaps.chat.left then
-		vim.keymap.set("n", cfg.keymaps.chat.left, ":DeepseekChat left<CR>", { noremap = true })
-	end
-	if cfg.keymaps.chat.right then
-		vim.keymap.set("n", cfg.keymaps.chat.right, ":DeepseekChat right<CR>", { noremap = true })
-	end
-	if cfg.keymaps.chat.top then
-		vim.keymap.set("n", cfg.keymaps.chat.top, ":DeepseekChat top<CR>", { noremap = true })
-	end
-	if cfg.keymaps.chat.bottom then
-		vim.keymap.set("n", cfg.keymaps.chat.bottom, ":DeepseekChat bottom<CR>", { noremap = true })
-	end
-	vim.keymap.set(
-		{ "n" },
-		cfg.keymaps.n_send_chat or "<CR>",
-		[[<Cmd>lua require("deepseek.core.chat"):run()<CR>]],
-		{ buffer = ui.input_buf, noremap = true, silent = true }
-	)
-
-	vim.keymap.set(
-		{ "i" },
-		cfg.keymaps.i_send_chat or "<C-i>",
-		[[<Cmd>lua require("deepseek.core.chat"):run()<CR>]],
-		{ buffer = ui.input_buf, noremap = true, silent = true }
-	)
-
-	vim.keymap.set(
-		{ "n" },
-		cfg.keymaps.n_close_chat or "q",
-		[[<Cmd>lua require("deepseek.core.chat"):close()<CR>]],
-		{ buffer = ui.chat_buf, noremap = true, silent = true }
-	)
-
-	vim.keymap.set(
-		{ "n" },
-		cfg.keymaps.n_close_chat or "q",
-		[[<Cmd>lua require("deepseek.ui.window").close_chat()<CR>]],
-		{ buffer = ui.input_buf, noremap = true, silent = true }
-	)
-
-	vim.keymap.set(
-		{ "i" },
-		cfg.keymaps.i_close_chat or "<C-q>",
-		[[<Cmd>lua require("deepseek.ui.window").close_chat()<CR>]],
-		{ buffer = ui.chat_buf, noremap = true, silent = true }
-	)
-
-	vim.keymap.set(
-		{ "i" },
-		cfg.keymaps.i_close_chat or "<C-q>",
-		[[<Cmd>lua require("deepseek.ui.window").close_chat()<CR>]],
-		{ buffer = ui.input_buf, noremap = true, silent = true }
+function Translate:build_system_prompt(uuid)
+	-- Формируем системный промт
+	table.insert(
+		self.messages,
+		{ role = "system", content = (self.cfg.system_prompt):format(self.cfg.language, self.cfg.second_language) }
 	)
 end
 
-return Chat
+function Translate:create_user_command()
+	vim.api.nvim_create_user_command("DeepseekTranslate", function()
+		local vis = buf.get_pos_visual_selection()
+		local selection = buf.get_visual_selection(vis)
+		local text = table.concat(selection, "\n")
+
+		local uuid = self.simple_guid()
+		self.uuid_requests[uuid] = { vis = vis }
+		self:run(text, uuid)
+	end, { range = true })
+end
+
+function Translate:print_ai_response(response, uuid)
+	local vis = self.uuid_requests[uuid].vis
+	local lines = vim.split(response, "\n")
+
+	BaseCommand.print_ai_response(self, response, uuid)
+
+	buf.print_content_to_visual_selection(lines, vis)
+end
+
+function Translate:keymaps()
+	vim.keymap.set("v", cfg.keymaps.translate or "<leader>at", ":DeepseekTranslate<CR>", { noremap = true })
+end
+
+return Translate

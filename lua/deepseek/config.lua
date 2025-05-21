@@ -50,6 +50,14 @@ M.default_config = {
 			order = 1,
 			enable_memory = true,
 		},
+		translate = {
+			model = "deepseek-chat",
+			system_prompt = "Ты — переводчик. Ты получаешь текст и переводишь его на %s язык. Твой ответ должен содержать только перевод, без пояснений. Если текст уже на нужном языке, возвращай перевод на %s языке. Не добавляй кавычки, если они не были в исходном сообщении.",
+			language = "English",
+			second_language = "Russian",
+			max_tokens = 4096,
+			temperature = 0.2,
+		},
 	},
 	class = {},
 
@@ -59,7 +67,7 @@ M.default_config = {
 		max_history = 10,
 		enable_memory = true,
 	},
-	translate_code = {
+	translate = {
 		model = "deepseek-chat",
 		system_prompt = "Ты — переводчик. Ты получаешь текст и переводишь его на %s язык. Твой ответ должен содержать только перевод, без пояснений. Если текст уже на нужном языке, возвращай перевод на %s языке. Не добавляй кавычки, если они не были в исходном сообщении.",
 		language = "English",

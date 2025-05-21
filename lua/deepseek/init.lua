@@ -18,7 +18,6 @@ local function load_setup(loaded, opts)
 	local mt = getmetatable(loaded)
 	-- 1️⃣ Если это класс (у него метод setup в прототипе/метатаблице)
 	if mt and type(mt.__index) == "table" then
-		print("loaded class")
 		if type(mt.__index.setup) == "function" then
 			loaded:setup(opts) -- Вызов через двоеточие для сохранения self
 		end
