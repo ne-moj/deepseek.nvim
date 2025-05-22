@@ -47,9 +47,12 @@ function Translate:print_ai_response(response, uuid)
 	local vis = self.uuid_requests[uuid].vis
 	local lines = vim.split(response, "\n")
 
-	BaseCommand.print_ai_response(self, response, uuid)
+	-- BaseCommand.print_ai_response(self, response, uuid)
 
 	buf.print_content_to_visual_selection(lines, vis)
+
+	-- чистим, чтобы не хранить лишнее
+	self.uuid_requests[uuid] = nil
 end
 
 function Translate:keymaps()

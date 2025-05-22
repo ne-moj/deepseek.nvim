@@ -13,6 +13,31 @@ function M.setup(opts)
 	cfg = opts or {}
 end
 
+function M.create_input_buf()
+	if not M.input_buf then
+		M.input_buf = vim.api.nvim_create_buf(false, true)
+	end
+end
+
+function M.create_chat_buf(first_msg)
+	if not M.chat_buf then
+		if not first_msg then
+			first_msg = {
+				" ",
+				"┌──────────────────────────────────────────────┐",
+				"│  Welcome to Deepseek Chat!                   │",
+				"│  Type your message below and press Enter     │",
+				"│  to send. Press Esc to close the window.     │",
+				"└──────────────────────────────────────────────┘",
+				" ",
+			}
+		end
+
+		M.chat_buf = vim.api.nvim_create_buf(false, true)
+		vim.api.nvim_buf_set_lines(M.chat_buf, 0, -1, false, first_msg)
+	end
+end
+
 function M.set_position(pos)
 	position = pos
 end
@@ -122,9 +147,7 @@ function M.toggle_popup()
 		}
 	end
 
-	if not M.input_buf then
-		M.input_buf = vim.api.nvim_create_buf(false, true)
-	end
+	M.create_input_buf()
 
 	input_win = vim.api.nvim_open_win(M.input_buf, true, {
 		relative = "editor",
@@ -210,7 +233,9 @@ function M.print_user_request(prompt)
 end
 
 function M.clear_input_buf()
-	vim.api.nvim_buf_set_lines(M.input_buf, 0, -1, false, { "" })
+	if M.input_buf then
+		vim.api.nvim_buf_set_lines(M.input_buf, 0, -1, false, { "" })
+	end
 end
 
 function M.focus_input_win()

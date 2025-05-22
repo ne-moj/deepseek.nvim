@@ -28,6 +28,9 @@ end
 function Chat:setup(config)
 	BaseCommand.setup(self, config)
 
+	ui.create_input_buf()
+	ui.create_chat_buf()
+
 	self:create_user_command()
 	self:keymaps()
 end

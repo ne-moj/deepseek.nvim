@@ -23,7 +23,10 @@ function M.request(params, callback, endpoint)
 		on_exit = function(j)
 			local result = table.concat(j:result(), "\n")
 			vim.schedule(function()
-				local decoded = vim.fn.json_decode(result)
+				local decoded = {}
+				if result then
+					decoded = vim.fn.json_decode(result)
+				end
 				callback(decoded)
 			end)
 		end,

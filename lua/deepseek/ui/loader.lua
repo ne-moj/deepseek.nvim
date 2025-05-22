@@ -31,7 +31,7 @@ function M.hide()
 		timer:stop()
 		timer:close()
 		timer = nil
-		vim.cmd("echo '" .. load_success .. "'")
+		vim.cmd("echohl ModeMsg | echon '" .. load_success .. "' | echohl None")
 	end
 end
 

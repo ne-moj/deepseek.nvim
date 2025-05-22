@@ -89,21 +89,34 @@ end
 function BaseCommand:build_system_prompt(uuid)
 	-- переопределяется в дочерних методах
 	-- Формируем системный промт
-	table.insert(self.messages, { role = "system", content = (self.cfg.system_prompt):format(vim.bo.filetype) })
+	if self.cfg and self.cfg.system_prompt then
+		table.insert(self.messages, { role = "system", content = (self.cfg.system_prompt):format(vim.bo.filetype) })
+	end
 end
 
 function BaseCommand:get_response(response, uuid)
-	if response and response.choices and response.choices[1] then
-		table.insert(self.history, {
-			role = "assistant",
-			content = response.choices[1].message.content,
-		})
+	if
+		response
+		and response.choices
+		and response.choices[1]
+		and response.choices[1].message
+		and response.choices[1].message.content
+	then
+		if self.cfg.enable_memory then
+			table.insert(self.history, {
+				role = "assistant",
+				content = response.choices[1].message.content,
+			})
+		end
 		-- Печатаем ответ от AI
 		self:print_ai_response(response.choices[1].message.content, uuid)
 	end
-	-- Чистим историю чата
-	while #self.history > self.max_history do
-		table.remove(self.history, 1)
+
+	if self.cfg.enable_memory then
+		-- Чистим историю чата
+		while #self.history > self.max_history do
+			table.remove(self.history, 1)
+		end
 	end
 end
 
