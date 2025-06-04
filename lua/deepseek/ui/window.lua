@@ -23,7 +23,6 @@ function M.create_chat_buf(first_msg)
 	if not M.chat_buf then
 		if not first_msg then
 			first_msg = {
-				" ",
 				"┌──────────────────────────────────────────────┐",
 				"│  Welcome to Deepseek Chat!                   │",
 				"│  Type your message below and press Enter     │",
@@ -64,19 +63,7 @@ function M.toggle_popup()
 		return
 	end
 
-	if not M.chat_buf then
-		M.chat_buf = vim.api.nvim_create_buf(false, true)
-
-		vim.api.nvim_buf_set_lines(M.chat_buf, 0, -1, false, {
-			" ",
-			"┌──────────────────────────────────────────────┐",
-			"│  Welcome to Deepseek Chat!                   │",
-			"│  Type your message below and press Enter     │",
-			"│  to send. Press Esc to close the window.     │",
-			"└──────────────────────────────────────────────┘",
-			" ",
-		})
-	end
+	M.create_chat_buf()
 
 	local width = math.floor(vim.o.columns * (cfg.width or 0.5))
 	local height = math.floor(vim.o.lines * (cfg.height or 0.3))
@@ -133,13 +120,13 @@ function M.toggle_popup()
 	else -- float
 		col = (vim.o.columns - width) / 2
 		input_col = col
-		input_row = height + 2 + ((vim.o.lines - height) / 2)
+		input_row = height + 2 + ((vim.o.lines - (height + input_height + 4)) / 2)
 		opts = {
 			relative = "editor",
 			width = width,
 			height = height,
 			col = (vim.o.columns - width) / 2,
-			row = (vim.o.lines - height) / 2,
+			row = (vim.o.lines - (height + input_height + 4)) / 2,
 			style = cfg.float_style or style,
 			border = cfg.float_border or border,
 			title = cfg.float_title or " Deepseek Chat ",

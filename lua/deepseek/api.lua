@@ -3,9 +3,7 @@ local config = require("deepseek.config").get_config()
 
 local M = {}
 
-function M.request(params, callback, endpoint)
-	endpoint = endpoint or "/chat/completions"
-
+local function request(params, callback, url)
 	Job:new({
 		command = "curl",
 		args = {
@@ -18,7 +16,7 @@ function M.request(params, callback, endpoint)
 			"Authorization: Bearer " .. config.api.key,
 			"--data-raw",
 			vim.fn.json_encode(params),
-			config.api.url .. endpoint,
+			url,
 		},
 		on_exit = function(j)
 			local result = table.concat(j:result(), "\n")
@@ -31,6 +29,18 @@ function M.request(params, callback, endpoint)
 			end)
 		end,
 	}):start()
+end
+
+function M.beta_request(params, callback)
+	local url = config.api.beta_url
+
+	return request(params, callback, url)
+end
+
+function M.request(params, callback, endpoint)
+	local url = config.api.url .. (endpoint or "/chat/completions")
+
+	return request(params, callback, url)
 end
 
 return M

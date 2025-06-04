@@ -5,6 +5,17 @@ function M.return_all_lines_buf(buf)
 	return vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 end
 
+-- Функция которая определяет позиции, а также буфер
+function M.get_pos_normal()
+	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+
+	return {
+		line = row - 1,
+		col = col - 1,
+		bufnr = vim.api.nvim_get_current_buf(),
+	}
+end
+
 -- Функция которая определяет позиции выделеного, а также буфер и метод выделения
 function M.get_pos_visual_selection()
 	local start_pos = vim.fn.getpos("'<")
@@ -81,6 +92,19 @@ function M.get_visual_block_selection(lines, vis)
 		table.insert(block_selection, text)
 	end
 	return block_selection
+end
+
+function M.print_content_before_current_line(lines, vis)
+	if not vis then
+		vis = M.get_pos_normal
+	end
+
+	-- Проверяем, что строки существуют
+	if not vim.api.nvim_buf_is_valid(vis.bufnr) then
+		return
+	end
+
+	vim.api.nvim_buf_set_lines(vis.bufnr, vis.line, vis.line, false, lines)
 end
 
 function M.print_content_to_visual_selection(lines, vis)

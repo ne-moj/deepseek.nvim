@@ -24,8 +24,6 @@ function Improve:create_user_command()
 	vim.api.nvim_create_user_command("DeepseekImprove", function(opts)
 		local prompt = table.concat(opts.fargs, " ")
 
-		print(prompt)
-
 		local vis = buf.get_pos_visual_selection()
 		local selection = buf.get_visual_selection(vis)
 		local text = table.concat(selection, "\n")
@@ -40,7 +38,7 @@ function Improve:print_ai_response(response, uuid)
 	local vis = self.uuid_requests[uuid].vis
 	local lines = vim.split(response, "\n")
 
-	BaseCommand.print_ai_response(self, response, uuid)
+	-- BaseCommand.print_ai_response(self, response, uuid)
 
 	buf.print_content_to_visual_selection(lines, vis)
 end

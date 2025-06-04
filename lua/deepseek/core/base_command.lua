@@ -40,6 +40,10 @@ function BaseCommand:run(input, uuid)
 	self:update_system_params(uuid)
 	local params = self:build_params(input, uuid)
 	self:show_loader(uuid)
+	self:request(uuid, params)
+end
+
+function BaseCommand:request(uuid, params)
 	api.request(params, function(response)
 		self:hide_loader(uuid)
 		self:get_response(response, uuid)

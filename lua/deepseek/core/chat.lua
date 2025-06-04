@@ -29,7 +29,7 @@ function Chat:setup(config)
 	BaseCommand.setup(self, config)
 
 	ui.create_input_buf()
-	ui.create_chat_buf()
+	ui.create_chat_buf(config.hi_message)
 
 	self:create_user_command()
 	self:keymaps()

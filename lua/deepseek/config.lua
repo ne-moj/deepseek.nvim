@@ -12,6 +12,7 @@ M.default_config = {
 		order = 1,
 		key = nil,
 		url = "https://api.deepseek.com/v1",
+		beta_url = "https://api.deepseek.com/beta",
 		default_model = "deepseek-chat",
 	},
 	keymaps = {
@@ -31,18 +32,20 @@ M.default_config = {
 		},
 	},
 	ui = {
+		order = 10,
 		loader = {
 			loader_prefix = "AI готовит ответ ",
 			loader_postfix = "",
 			load_success = "AI ответ готов!",
 		},
-		order = 10,
-		default_position = "float", -- float, left, right, top, bottom
-		width = 0.5, -- float window width ratio
-		height = 0.5, -- float window height ratio
-		min_width = 12, -- минимальная ширина окна чата
-		min_height = 12, -- минимальная высота окна чата
-		border = "rounded", -- window border style
+		window = {
+			default_position = "float", -- float, left, right, top, bottom
+			width = 0.7, -- float window width ratio
+			height = 0.6, -- float window height ratio
+			min_width = 15, -- минимальная ширина окна чата
+			min_height = 15, -- минимальная высота окна чата
+			border = "rounded", -- window border style
+		},
 	},
 	core = {
 		order = 60,
@@ -57,6 +60,14 @@ M.default_config = {
 			system_prompt = "Ты — AI ассистент помогающий по %s языку программирвоания",
 			max_history = 10,
 			enable_memory = true,
+			hi_message = {
+				"┌───────────────────────────────────────────────────────┐",
+				"│           Добро пожаловать в Deepseek чат!            │",
+				"│  Insert-mode: <C-i>   для отправки, <C-q> для выхода  │",
+				"│  Normal-mode: <Enter> для отправки,   q   для выхода  │",
+				"│               Приятного использования                 │",
+				"└───────────────────────────────────────────────────────┘",
+			},
 		},
 		translate = {
 			model = "deepseek-chat",
