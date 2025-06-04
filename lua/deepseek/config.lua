@@ -11,8 +11,7 @@ M.default_config = {
 	api = {
 		order = 1,
 		key = nil,
-		url = "https://api.deepseek.com/v1",
-		beta_url = "https://api.deepseek.com/beta",
+		url = "https://api.deepseek.com",
 		default_model = "deepseek-chat",
 	},
 	keymaps = {

@@ -10,8 +10,8 @@ function M.get_pos_normal()
 	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
 
 	return {
-		line = row - 1,
-		col = col - 1,
+		line = row,
+		col = col,
 		bufnr = vim.api.nvim_get_current_buf(),
 	}
 end
@@ -104,7 +104,7 @@ function M.print_content_before_current_line(lines, vis)
 		return
 	end
 
-	vim.api.nvim_buf_set_lines(vis.bufnr, vis.line, vis.line, false, lines)
+	vim.api.nvim_buf_set_lines(vis.bufnr, vis.line + 1, vis.line + 1, false, lines)
 end
 
 function M.print_content_to_visual_selection(lines, vis)

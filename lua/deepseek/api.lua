@@ -23,6 +23,7 @@ local function request(params, callback, url)
 			vim.schedule(function()
 				local decoded = {}
 				if result then
+					print(result)
 					decoded = vim.fn.json_decode(result)
 				end
 				callback(decoded)
@@ -31,14 +32,10 @@ local function request(params, callback, url)
 	}):start()
 end
 
-function M.beta_request(params, callback)
-	local url = config.api.beta_url
-
-	return request(params, callback, url)
-end
-
 function M.request(params, callback, endpoint)
 	local url = config.api.url .. (endpoint or "/chat/completions")
+
+	print(url)
 
 	return request(params, callback, url)
 end
