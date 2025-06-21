@@ -8,7 +8,8 @@ local BaseCommand = class()
 BaseCommand.cfg = {}
 BaseCommand.messages = {}
 BaseCommand.history = {}
-BaseCommand.last_stream_message = ""
+BaseCommand.stream_messages = {}
+BaseCommand.reasoning_messages = {}
 BaseCommand.model = "deepseek-chat"
 BaseCommand.max_tokens = 2048
 BaseCommand.temperature = 0.7
@@ -51,7 +52,7 @@ function BaseCommand:run(input, uuid)
 end
 
 function BaseCommand:stream_request(uuid, params)
-	self.last_stream_message = ""
+	self.stream_messages[uuid] = ""
 	api.stream_request(params, function(chunk)
 		self:get_stream_chunk(chunk, uuid)
 	end, function()
@@ -77,7 +78,6 @@ end
 
 function BaseCommand:before_send(input, uuid)
 	-- переопределяется в дочерних методах
-	vim.print("User: " .. input)
 end
 
 function BaseCommand:update_system_params(uuid)
@@ -117,21 +117,58 @@ function BaseCommand:build_system_prompt(uuid)
 end
 
 function BaseCommand:get_stream_chunk(chunk, uuid)
-	LOG:TRACE(chunk)
-	if chunk and chunk.choices and chunk.choices[1] and chunk.choices[1].delta and chunk.choices[1].delta.content then
-		self.last_stream_message = self.last_stream_message .. chunk.choices[1].delta.content
+	if
+		chunk
+		and chunk.choices
+		and chunk.choices[1]
+		and chunk.choices[1].delta
+		and chunk.choices[1].delta.reasoning_content
+		and chunk.choices[1].delta.reasoning_content ~= vim.NIL
+	then
+		if not self.reasoning_messages[uuid] then
+			self.reasoning_messages[uuid] = ""
+			self:start_reasoning(uuid)
+		end
+		self.reasoning_messages[uuid] = self.reasoning_messages[uuid] .. chunk.choices[1].delta.reasoning_content
+		-- Печатаем ответ от AI
+		self:print_ai_chunk(chunk.choices[1].delta.reasoning_content, uuid)
+	end
+
+	if
+		chunk
+		and chunk.choices
+		and chunk.choices[1]
+		and chunk.choices[1].delta
+		and chunk.choices[1].delta.content
+		and chunk.choices[1].delta.content ~= vim.NIL
+	then
+		if self.reasoning_messages[uuid] then
+			self.reasoning_messages[uuid] = nil
+			self:end_reasoning(uuid)
+		end
+		self.stream_messages[uuid] = self.stream_messages[uuid] .. chunk.choices[1].delta.content
 		-- Печатаем ответ от AI
 		self:print_ai_chunk(chunk.choices[1].delta.content, uuid)
 	end
+end
+
+function BaseCommand:start_reasoning(uuid)
+	-- переопределяется в дочерних классах
+end
+
+function BaseCommand:end_reasoning(uuid)
+	-- переопределяется в дочерних классах
 end
 
 function BaseCommand:end_stream(uuid)
 	if self.cfg.enable_memory then
 		table.insert(self.history, {
 			role = "assistant",
-			content = self.last_stream_message,
+			content = self.stream_messages[uuid],
 		})
 	end
+	-- удаляем сообщения которые были сохранены в истории
+	self.stream_messages[uuid] = nil
 end
 
 function BaseCommand:get_response(response, uuid)
@@ -162,13 +199,11 @@ end
 
 function BaseCommand:print_ai_chunk(chunk, uuid)
 	-- переопределяется в дочерних методах
-	LOG:TRACE(chunk)
 end
 
 function BaseCommand:print_ai_response(response, uuid)
 	-- переопределяется в дочерних методах
 	LOG:DEBUG("Сработала заглушка - сообщение пришло.")
-	LOG:TRACE("AI: " .. response)
 end
 
 function BaseCommand:simple_guid()

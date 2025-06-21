@@ -27,8 +27,15 @@ function Chat:stream_request(uuid, params)
 	BaseCommand.stream_request(self, uuid, params)
 end
 
+function Chat:start_reasoning(_)
+	ui.print_line_to_chat({ self.cfg.reasoning_start_message, " " })
+end
+
+function Chat:end_reasoning(_)
+	ui.print_line_to_chat({ self.cfg.reasoning_end_message, " ", " " })
+end
+
 function Chat:print_ai_chunk(chunk)
-	LOG:TRACE(chunk)
 	ui.print_ai_chunk(chunk)
 end
 

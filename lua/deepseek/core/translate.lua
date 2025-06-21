@@ -1,7 +1,6 @@
 local cfg = require("deepseek.config").get_config()
 local class = require("deepseek.class")
 local BaseCommand = require("deepseek.core.base_command")
-local ui = require("deepseek.ui.window")
 local buf = require("deepseek.ui.buffer")
 
 local Translate = class(BaseCommand)
@@ -20,8 +19,6 @@ function Translate:setup(config)
 	self:create_user_command()
 	self:keymaps()
 end
-
-function Translate:before_send(input, uuid) end
 
 function Translate:build_system_prompt(uuid)
 	-- Формируем системный промт

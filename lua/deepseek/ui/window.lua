@@ -45,6 +45,10 @@ function M.create_chat_buf(first_msg)
 	end
 end
 
+function M.print_line_to_chat(messages)
+	vim.api.nvim_buf_set_lines(M.chat_buf, -1, -1, false, messages)
+end
+
 function M.set_position(pos)
 	position = pos
 end

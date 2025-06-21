@@ -16,6 +16,14 @@ function M.get_pos_normal()
 	}
 end
 
+function M.convert_pos_visual_to_pos_normal(pos_visual)
+	return {
+		line = pos_visual.start_line,
+		col = pos_visual.start_col,
+		bufnr = pos_visual.bufnr,
+	}
+end
+
 -- Функция которая определяет позиции выделеного, а также буфер и метод выделения
 function M.get_pos_visual_selection()
 	local start_pos = vim.fn.getpos("'<")
@@ -104,7 +112,7 @@ function M.print_content_before_current_line(lines, vis)
 		return
 	end
 
-	vim.api.nvim_buf_set_lines(vis.bufnr, vis.line + 1, vis.line + 1, false, lines)
+	vim.api.nvim_buf_set_lines(vis.bufnr, vis.line, vis.line, false, lines)
 end
 
 function M.print_content_to_visual_selection(lines, vis)

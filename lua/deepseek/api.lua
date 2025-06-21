@@ -16,7 +16,7 @@ function M.stream_request(params, stream_callback, end_callback, endpoint)
 		args = {
 			"-s",
 			"-m",
-			config.api.stream_timeout,
+			tostring(config.api.stream_timeout or 0),
 			url,
 			"-N",
 			"-X",
@@ -33,7 +33,6 @@ function M.stream_request(params, stream_callback, end_callback, endpoint)
 			if chunk and chunk:match("^data:%s*") then
 				LOG:TRACE(chunk)
 				local prepare_chunk = chunk:gsub("^data:%s*", "")
-				LOG:TRACE(prepare_chunk)
 				if prepare_chunk and #prepare_chunk > 0 and prepare_chunk ~= "[DONE]" then
 					decoded = vim.fn.json_decode(prepare_chunk)
 				end

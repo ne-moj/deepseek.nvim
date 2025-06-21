@@ -5,9 +5,6 @@ M.default_config = {
 		order = 0,
 		disable = true,
 	},
-	commands = {
-		disable = true,
-	},
 	log = {
 		order = 1,
 		log_level = "2", -- 0 - DEBUG, 1 - INFO, 2 - WARN, 3 - ERROR
@@ -19,13 +16,13 @@ M.default_config = {
 		key = nil,
 		url = "https://api.deepseek.com",
 		default_model = "deepseek-chat",
-		stream_timeout = "30",
+		stream_timeout = 0, -- время ответа, после которого идет обрыв соединения, 0 - не обрывать соединение по timeout
 	},
 	keymaps = {
 		order = 99,
-		generate = "<leader>ag",
-		optimize = "<leader>ao",
-		analyze = "<leader>aa",
+		generate_code = "<leader>ag",
+		optimize_code = "<leader>ao",
+		analyze_code = "<leader>az",
 		translate = "<leader>at",
 		improve = "<leader>ai",
 		chat = {
@@ -40,9 +37,9 @@ M.default_config = {
 	ui = {
 		order = 10,
 		loader = {
-			loader_prefix = "AI готовит ответ ",
+			loader_prefix = "AI in progress ",
 			loader_postfix = "",
-			load_success = "AI ответ готов!",
+			load_success = "AI done!",
 		},
 		window = {
 			default_position = "float", -- float, left, right, top, bottom
@@ -63,18 +60,20 @@ M.default_config = {
 		chat = {
 			stream_mode = true,
 			disable = false,
-			model = "deepseek-chat",
+			model = "deepseek-chat", -- deepseek-chat or deepseek-reasoner
 			system_prompt = "Ты — AI ассистент помогающий по %s языку программирвоания",
 			max_history = 10,
 			enable_memory = true,
 			hi_message = {
-				"┌───────────────────────────────────────────────────────┐",
-				"│           Добро пожаловать в Deepseek чат!            │",
-				"│  Insert-mode: <C-i>   для отправки, <C-q> для выхода  │",
-				"│  Normal-mode: <Enter> для отправки,   q   для выхода  │",
-				"│               Приятного использования                 │",
-				"└───────────────────────────────────────────────────────┘",
+				"┌─────────────────────────────────────────────┐",
+				"│           Welcome to Deepseek chat!         │",
+				"│  Insert-mode: <C-i> to send, <C-q> to exit  │",
+				"│  Normal-mode: <Enter> to send, <q> to exit  │",
+				"│               Enjoy using it                │",
+				"└─────────────────────────────────────────────┘",
 			},
+			reasoning_start_message = "[------------------- **НАЧАЛО** Рассуждений -------------------]",
+			reasoning_end_message = "[---------------  **КОНЕЦ** Рассуждений ---------------]",
 		},
 		translate = {
 			model = "deepseek-chat",
@@ -92,28 +91,27 @@ M.default_config = {
 			temperature = 0.7,
 			enable_memory = false,
 		},
+		generate_code = {
+			model = "deepseek-chat",
+			system_prompt = "Ты — senior %s-разработчик. У тебя нет времени на приветсвтие и вежливости, но ты шикарно умеешь программировать. Пиши ТОЛЬКО код. Будь краток и лаконичен. Объясняй только если попросят.",
+			max_tokens = 4096,
+			temperature = 0.0,
+		},
+		optimize_code = {
+			model = "deepseek-chat",
+			system_prompt = "Ты — senior %s-разработчик. У тебя нет времени на приветсвтие и вежливости, но ты шикарно умеешь программировать. Будь краток и лаконичен. Улучши код, добавь коментарии и docstrings если это нужно",
+			max_tokens = 4096,
+			temperature = 0.2,
+		},
+		analyze_code = {
+			model = "deepseek-chat",
+			system_prompt = "Ты — senior %s-разработчик. Ты желаешь научить новичка программировать, поэтому достаточно подробно разъесняешь все, ты настолько хорошо разбираешься в программировании что тебе нет равных. Пиши ТОЛЬКО пояснения в виде комментариев. Будь краток и лаконичен. Объясняй.",
+			user_promt = "%s; [CODE]: ```%s\n %s\n```",
+			max_tokens = 4096,
+			temperature = 0.5,
+		},
 	},
 	class = {},
-
-	generate_code = {
-		model = "deepseek-chat",
-		system_prompt = "Ты — senior %s-разработчик. У тебя нет времени на приветсвтие и вежливости, но ты шикарно умеешь программировать. Пиши ТОЛЬКО код. Будь краток и лаконичен. Объясняй только если попросят.",
-		max_tokens = 2048,
-		temperature = 0.0,
-	},
-	optimize_code = {
-		model = "deepseek-chat",
-		system_prompt = "Ты — senior %s-разработчик. У тебя нет времени на приветсвтие и вежливости, но ты шикарно умеешь программировать. Пиши ТОЛЬКО код. Будь краток и лаконичен. Объясняй только если попросят.",
-		max_tokens = 4096,
-		temperature = 0.2,
-	},
-	analyze_code = {
-		model = "deepseek-chat",
-		system_prompt = "Ты — senior %s-разработчик. Ты желаешь научить новичка программировать, поэтому достаточно подробно разъесняешь все, ты настолько хорошо разбираешься в программировании что тебе нет равных. Пиши ТОЛЬКО пояснения. Будь краток и лаконичен. Объясняй.",
-		user_promt = "Вопрос: %s; мой код %s",
-		max_tokens = 4096,
-		temperature = 0.5,
-	},
 }
 
 function M.setup(user_config)
