@@ -20,7 +20,9 @@ Example for `packer.nvim`:
 ```lua
 use {
   "ne-moj/deepseek.nvim",
-  dependencies = { "numToStr/Comment.nvim" },
+  dependencies = { 
+    "nvim-lua/plenary.nvim",
+  },
   config = function()
     require("deepseek").setup({
       api = { key = "YOUR_API_KEY" }
