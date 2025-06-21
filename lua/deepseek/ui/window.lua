@@ -11,6 +11,12 @@ M.input_buf = nil
 
 function M.setup(opts)
 	cfg = opts or {}
+	vim.treesitter.language.register("markdown", "llm")
+
+	M.ns_id = vim.api.nvim_create_namespace("llm_highlight")
+	vim.api.nvim_set_hl(0, "LLMSingleGreen", { fg = "#00ff00" })
+	vim.api.nvim_set_hl(0, "LLMSingleRed", { fg = "#ff0000" })
+	vim.api.nvim_set_hl(0, "LLMSingleBlue", { fg = "#0000ff" })
 end
 
 function M.create_input_buf()
@@ -34,6 +40,8 @@ function M.create_chat_buf(first_msg)
 
 		M.chat_buf = vim.api.nvim_create_buf(false, true)
 		vim.api.nvim_buf_set_lines(M.chat_buf, 0, -1, false, first_msg)
+
+		vim.bo[M.chat_buf].filetype = "llm"
 	end
 end
 
@@ -148,6 +156,10 @@ function M.toggle_popup()
 
 	chat_win = vim.api.nvim_open_win(M.chat_buf, true, opts)
 
+	vim.api.nvim_win_set_option(chat_win, "wrap", true)
+	vim.api.nvim_win_set_option(chat_win, "linebreak", true) -- перенос по словам, не по буквам
+	vim.api.nvim_win_set_option(chat_win, "breakindent", true) -- отступ на новой строке
+
 	vim.api.nvim_set_current_win(input_win)
 	vim.api.nvim_set_current_buf(M.input_buf)
 end
@@ -161,30 +173,31 @@ function M.get_input_data()
 	return table.concat(lines, "\n")
 end
 
+function M.print_ai_chunk(chunk)
+	if not M.chat_buf then
+		return nil
+	end
+
+	local lines = vim.api.nvim_buf_get_lines(M.chat_buf, -2, -1, false)
+	if #lines == 0 then
+		lines = { "" }
+	end
+	local content_lines = type(chunk) == "string" and vim.split(lines[#lines] .. chunk, "\n", { plain = true }) or chunk
+
+	vim.api.nvim_buf_set_lines(M.chat_buf, -2, -1, false, content_lines)
+
+	M.scroll_down_win(chat_win, M.chat_buf)
+end
+
 function M.print_ai_response(content)
 	if not M.chat_buf then
 		return nil
 	end
 
-	local timestamp = os.date("%H:%M")
 	local content_lines = type(content) == "string" and vim.split(content, "\n", { plain = true }) or content
+	M.print_ai_prefix_line(" ", "LLMSingleGreen")
 
-	vim.api.nvim_buf_set_lines(
-		M.chat_buf,
-		-1,
-		-1,
-		false,
-		vim.list_extend(
-			vim.list_extend({
-				" ",
-				"[" .. timestamp .. "] Deepseek: ",
-			}, content_lines),
-			{
-				" ",
-				"──────────────────────────────────────────────",
-			}
-		)
-	)
+	vim.api.nvim_buf_set_lines(M.chat_buf, -1, -1, false, content_lines)
 
 	M.scroll_down_win(chat_win, M.chat_buf)
 end
@@ -195,28 +208,40 @@ function M.print_user_request(prompt)
 	end
 
 	-- 添加时间戳
-	local timestamp = os.date("%H:%M")
 	local prompt_lines = type(prompt) == "string" and vim.split(prompt, "\n", { plain = true }) or prompt
 
+	M.print_ai_prefix_line(" ", "LLMSingleBlue")
+
 	-- 添加用户消息到聊天窗口
-	vim.api.nvim_buf_set_lines(
-		M.chat_buf,
-		-1,
-		-1,
-		false,
-		vim.list_extend(
-			vim.list_extend({
-				" ",
-				"[" .. timestamp .. "] You: ",
-			}, prompt_lines),
-			{
-				" ",
-				"──────────────────────────────────────────────",
-			}
-		)
-	)
+	vim.api.nvim_buf_set_lines(M.chat_buf, -1, -1, false, prompt_lines)
 
 	M.scroll_down_win(chat_win, M.chat_buf)
+end
+
+function M.print_ai_prefix_line(emoji, highlight)
+	if not M.chat_buf then
+		return nil
+	end
+
+	local timestamp = os.date("%H:%M")
+	local line = "[" .. timestamp .. "] " .. emoji .. " "
+	local len = vim.fn.strdisplaywidth(line)
+
+	vim.api.nvim_buf_set_lines(M.chat_buf, -1, -1, false, {
+		" ",
+		line,
+	})
+
+	local lines = vim.api.nvim_buf_get_lines(M.chat_buf, 0, -1, false)
+	local total_lines = #lines
+
+	vim.api.nvim_buf_set_extmark(
+		M.chat_buf,
+		M.ns_id,
+		total_lines - 1,
+		len - 3,
+		{ end_col = len - 1, hl_group = highlight, right_gravity = false }
+	)
 end
 
 function M.clear_input_buf()

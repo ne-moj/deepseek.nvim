@@ -8,11 +8,18 @@ M.default_config = {
 	commands = {
 		disable = true,
 	},
-	api = {
+	log = {
 		order = 1,
+		log_level = "2", -- 0 - DEBUG, 1 - INFO, 2 - WARN, 3 - ERROR
+		enable_trace = false, -- true on TRACE
+		plugin_name = "deepseek.nvim",
+	},
+	api = {
+		order = 2,
 		key = nil,
 		url = "https://api.deepseek.com",
 		default_model = "deepseek-chat",
+		stream_timeout = "30",
 	},
 	keymaps = {
 		order = 99,
@@ -54,6 +61,7 @@ M.default_config = {
 			enable_memory = true,
 		},
 		chat = {
+			stream_mode = true,
 			disable = false,
 			model = "deepseek-chat",
 			system_prompt = "Ты — AI ассистент помогающий по %s языку программирвоания",

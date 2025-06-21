@@ -45,7 +45,7 @@ function GenerateCode:create_user_command()
 	end, { range = true, nargs = "*" })
 end
 
-function BaseCommand:get_response(response, uuid)
+function GenerateCode:get_response(response, uuid)
 	if response and response.choices and response.choices[1] and response.choices[1].text then
 		-- Печатаем ответ от AI
 		self:print_ai_response(response.choices[1].text, uuid)

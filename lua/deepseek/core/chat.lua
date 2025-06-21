@@ -1,3 +1,4 @@
+local LOG = require("deepseek.log")
 local cfg = require("deepseek.config").get_config()
 local class = require("deepseek.class")
 local BaseCommand = require("deepseek.core.base_command")
@@ -19,6 +20,16 @@ function Chat:before_send(input)
 	ui.clear_input_buf()
 	-- Печатаем в буфер чата сообщение пользователя
 	ui.print_user_request(input)
+end
+
+function Chat:stream_request(uuid, params)
+	ui.print_ai_prefix_line(" ", "LLMSingleGreen")
+	BaseCommand.stream_request(self, uuid, params)
+end
+
+function Chat:print_ai_chunk(chunk)
+	LOG:TRACE(chunk)
+	ui.print_ai_chunk(chunk)
 end
 
 function Chat:print_ai_response(response)
