@@ -1,50 +1,29 @@
 # Deepseek.nvim
 
-A powerful AI assistant plugin for Neovim, providing code generation, optimization, analysis, and conversational AI capabilities directly in your editor.
+Deepseek.nvim is a Neovim plugin that brings the power of Deepseek AI straight into your editor. It can generate and optimize code, analyze selections, improve or translate text and provides a handy chat interface.
 
 ## Features
+- Generate code from a prompt
+- Optimize and refactor selected code
+- Analyze selected fragments in detail
+- Translate text between languages
+- Interactive chat with history
+- Flexible keymaps and interface
 
-- Code generation from natural language prompts
-- Code optimization suggestions
-- Code analysis and explanation
-- AI chat with conversation history
-- Customizable keybindings
-- Configurable API settings
-- Floating window UI for chat interface
+## Requirements
+- Neovim 0.7+
+- `curl` for HTTP requests
+- Deepseek API key
 
 ## Installation
-
-Using packer.nvim:
-
+Example for `packer.nvim`:
 ```lua
 use {
   "ne-moj/deepseek.nvim",
-  dependencies = {
-    "numToStr/Comment.nvim",
-  },
+  dependencies = { "numToStr/Comment.nvim" },
   config = function()
     require("deepseek").setup({
-      api_key = "your-api-key-here", -- Optional configuration
-      api_url = "https://api.deepseek.com/v1",
-      keymaps = {
-        generate = "<leader>dg",
-        optimize = "<leader>do",
-        analyze = "<leader>da",
-        translate = "<leader>dt",
-        chat = "<leader>dc",
-      },
-      chat = {
-        system_prompt = "You are a helpful %s-assistant",
-        max_history = 10,
-        enable_memory = true,
-        ui = {
-          enable = true,
-          position = "float",
-          width = 0.5,
-          height = 0.5,
-          border = "rounded",
-        },
-      },
+      api = { key = "YOUR_API_KEY" }
     })
   end,
 }
@@ -53,86 +32,42 @@ use {
 ## Usage
 
 ### Commands
+- `:DeepseekGenerate <prompt>` — generate code in the current buffer
+- `:DeepseekOptimize` — optimize the selected code
+- `:DeepseekAnalyze [prompt]` — analyze the selected fragment
+- `:DeepseekImprove` — improve the selected text
+- `:DeepseekTranslate` — translate the selected text
+- `:DeepseekChat [position]` — open chat (float, left, right, top, bottom)
 
-- `:DeepseekGenerate <prompt>` - Generate code from natural language prompt
-- `:DeepseekOptimize` - Optimize selected code (visual mode)
-- `:DeepseekAnalyze <prompt>` - Analyze selected code (visual mode), prompt is optional
-- `:DeepseekChat <message>` - Start a chat with the AI
+Default keymaps are defined (see `lua/deepseek/config.lua`) but can be overridden.
 
-### Keybindings (default)
-
-- `<leader>dg` - Start code generation prompt
-- `<leader>do` - Optimize selected code
-- `<leader>da` - Analyze selected code
-- `<leader>dc` - Start AI chat
-
-## Configuration
-
+## Minimal configuration
 ```lua
-require('deepseek').setup({
-  api_key = "your-api-key",  -- Required
-  api_url = "https://api.deepseek.com/v1",  -- Optional
+require("deepseek").setup({
+  api = {
+    key = "YOUR_API_KEY",
+    url = "https://api.deepseek.com",
+    default_model = "deepseek-chat",
+  },
   keymaps = {
-    generate = "<leader>dg",  -- Code generation
-    optimize = "<leader>do",  -- Code optimization
-    analyze = "<leader>da",   -- Code analysis
-		translate = "<leader>dt", -- AI translate
-    chat = "<leader>dc"      -- AI chat
+    generate_code = "<leader>ag",
+    optimize_code = "<leader>ao",
+    analyze_code  = "<leader>az",
+    translate     = "<leader>at",
+    improve       = "<leader>ai",
+    chat = { default = "<leader>acc" },
   },
-  max_tokens = 2048,  -- Max tokens per request
-  temperature = 0.7,  -- Creativity level
-  enable_ui = true,   -- Enable/disable UI elements
-  chat = {
-    system_prompt = "You are a helpful %s-assistant",  -- System prompt for chat, %s will be replaced with the programming language
-    model = "deepseek-chat", -- deepseek-chat | deepseek-reasoner
-    max_history = 10,  -- Maximum conversation history length
-    enable_memory = true,  -- Enable conversation memory
-    ui = {
-      enable = true,
-      position = "float",  -- or "right"
-      width = 0.5,  -- float window width ratio
-      height = 0.5, -- float window height ratio
-      border = "rounded"  -- window border style
-    }
+  ui = {
+    window = {
+      default_position = "float",
+      width = 0.7,
+      height = 0.6,
+      border = "rounded",
+    },
   },
-  generate_code = {
-    model = "deepseek-chat",
-    system_prompt = "You are a senior %s developer. You have no time for greetings or politeness, but you code brilliantly. Write ONLY code. Be concise. Explain only if asked.",
-    max_tokens = 2048,
-    temperature = 0.0,
-  },
-  optimize_code = {
-    model = "deepseek-chat",
-    system_prompt = "You’re a senior %s developer. No time for greetings or niceties—just flawless code. Reply ONLY with code. Keep it short. Explain only if explicitly asked.",
-    max_tokens = 2048,
-    temperature = 0.2,
-  },
-  analyze_code = {
-    model = "deepseek-chat",
-    system_prompt = "You’re a senior %s developer. Your goal is to teach beginners, so you explain everything in clear detail. Your programming skills are unmatched. Reply ONLY with explanations. Be concise. Break it down when needed.",
-    user_promt = "Question: %s; Code: %s",
-    max_tokens = 2048,
-    temperature = 0.5,
-  },
-  translate_code = {
-    model = "deepseek-chat",
-    system_prompt = "You are a translator. You receive text and translate it into %s language. Your response should contain only the translation, without explanations. If the text is already in the target language, return the translation in %s language. Do not add quotes if they were not in the original message.",
-    language = "English",
-    second_language = "Russian",
-    max_tokens = 4096,
-    temperature = 0.2,
-  }
 })
 ```
+Detailed options can be found in [`lua/deepseek/config.lua`](lua/deepseek/config.lua).
 
-## Requirements
-
-- Neovim 0.7+
-- curl (for API requests)
-- Deepseek API key
-
-## GitHub Repository Description
-
-When creating the GitHub repository, use this description:
-
-"Deepseek.nvim - A powerful AI assistant plugin for Neovim, providing code generation, optimization, analysis, and conversational AI capabilities with a modern floating window interface."
+## License
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
