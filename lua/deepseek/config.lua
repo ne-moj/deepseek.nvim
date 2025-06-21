@@ -16,7 +16,7 @@ M.default_config = {
 		key = nil,
 		url = "https://api.deepseek.com",
 		default_model = "deepseek-chat",
-		stream_timeout = 0, -- время ответа, после которого идет обрыв соединения, 0 - не обрывать соединение по timeout
+		stream_timeout = 0, -- response timeout after which the connection is terminated, 0 - do not terminate the connection by timeout
 	},
 	keymaps = {
 		order = 99,
@@ -45,8 +45,8 @@ M.default_config = {
 			default_position = "float", -- float, left, right, top, bottom
 			width = 0.7, -- float window width ratio
 			height = 0.6, -- float window height ratio
-			min_width = 15, -- минимальная ширина окна чата
-			min_height = 15, -- минимальная высота окна чата
+			min_width = 15, -- minimum chat window width
+			min_height = 15, -- minimum chat window height
 			border = "rounded", -- window border style
 		},
 	},
@@ -61,7 +61,7 @@ M.default_config = {
 			stream_mode = true,
 			disable = false,
 			model = "deepseek-chat", -- deepseek-chat or deepseek-reasoner
-			system_prompt = "Ты — AI ассистент помогающий по %s языку программирвоания",
+			system_prompt = "You are an AI assistant helping with the %s programming language",
 			max_history = 10,
 			enable_memory = true,
 			hi_message = {
@@ -72,12 +72,12 @@ M.default_config = {
 				"│               Enjoy using it                │",
 				"└─────────────────────────────────────────────┘",
 			},
-			reasoning_start_message = "[------------------- **НАЧАЛО** Рассуждений -------------------]",
-			reasoning_end_message = "[---------------  **КОНЕЦ** Рассуждений ---------------]",
+			reasoning_start_message = "[------------------- **START** Reasoning -------------------]",
+			reasoning_end_message = "[---------------  **END** Reasoning ---------------]",
 		},
 		translate = {
 			model = "deepseek-chat",
-			system_prompt = "Ты — переводчик. Ты получаешь текст и переводишь его на %s язык. Твой ответ должен содержать только перевод, без пояснений. Если текст уже на нужном языке, возвращай перевод на %s языке. Не добавляй кавычки, если они не были в исходном сообщении, оставляй отступы и спец. символы в начале строк если они были в исходном сообщении.",
+			system_prompt = "You are a translator. You receive text and translate it into the %s language. Your response should contain only the translation, without explanations. If the text is already in the target language, return the translation in the %s language. Do not add quotation marks if they were not in the original message, preserve indentation and special characters at the beginning of lines if they were present in the original message.",
 			language = "English",
 			second_language = "Russian",
 			max_tokens = 4096,
@@ -86,26 +86,26 @@ M.default_config = {
 		},
 		improve = {
 			model = "deepseek-chat",
-			system_prompt = "Отвечай только исправленным текстом, без вводных слов, пояснений и завершающих фраз. Не пиши: 'Вот исправленный текст', 'Как ты просил', 'Если нужна помощь' и т. п. Просто сразу возвращай улучшенную версию текста.",
+			system_prompt = "Reply only with the corrected text, without introductory words, explanations, or closing phrases. Don't write: 'Here is the corrected text', 'As you requested', 'If you need help', etc. Simply return the improved version of the text right away.",
 			max_tokens = 4096,
 			temperature = 0.7,
 			enable_memory = false,
 		},
 		generate_code = {
 			model = "deepseek-chat",
-			system_prompt = "Ты — senior %s-разработчик. У тебя нет времени на приветсвтие и вежливости, но ты шикарно умеешь программировать. Пиши ТОЛЬКО код. Будь краток и лаконичен. Объясняй только если попросят.",
+			system_prompt = "You are a senior %s developer. You don't have time for greetings and politeness, but you're excellent at coding. Write ONLY code. Be brief and concise. Explain only if asked.",
 			max_tokens = 4096,
 			temperature = 0.0,
 		},
 		optimize_code = {
 			model = "deepseek-chat",
-			system_prompt = "Ты — senior %s-разработчик. У тебя нет времени на приветсвтие и вежливости, но ты шикарно умеешь программировать. Будь краток и лаконичен. Улучши код, добавь коментарии и docstrings если это нужно",
+			system_prompt = "You are a senior %s developer. You don't have time for greetings and politeness, but you're excellent at coding. Be brief and concise. Improve the code, add comments and docstrings if needed",
 			max_tokens = 4096,
 			temperature = 0.2,
 		},
 		analyze_code = {
 			model = "deepseek-chat",
-			system_prompt = "Ты — senior %s-разработчик. Ты желаешь научить новичка программировать, поэтому достаточно подробно разъесняешь все, ты настолько хорошо разбираешься в программировании что тебе нет равных. Пиши ТОЛЬКО пояснения в виде комментариев. Будь краток и лаконичен. Объясняй.",
+			system_prompt = "You are a senior %s developer. You want to teach a beginner to code, so you explain everything in sufficient detail. You're so good at programming that you have no equal. Write ONLY explanations in the form of comments. Be brief and concise. Explain.",
 			user_promt = "%s; [CODE]: ```%s\n %s\n```",
 			max_tokens = 4096,
 			temperature = 0.5,

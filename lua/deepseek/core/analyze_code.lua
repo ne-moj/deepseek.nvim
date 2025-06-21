@@ -59,7 +59,7 @@ end
 
 function AnalyzeCode:get_response(response, uuid)
 	if response and response.choices and response.choices[1] and response.choices[1].text then
-		-- Печатаем ответ от AI
+		-- Printing the response from AI
 		self:print_ai_response(response.choices[1].text, uuid)
 	end
 end

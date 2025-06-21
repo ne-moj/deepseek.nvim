@@ -167,7 +167,7 @@ function BaseCommand:end_stream(uuid)
 			content = self.stream_messages[uuid],
 		})
 	end
-	-- удаляем сообщения которые были сохранены в истории
+	-- deleting messages that were saved in history
 	self.stream_messages[uuid] = nil
 end
 
@@ -185,12 +185,12 @@ function BaseCommand:get_response(response, uuid)
 				content = response.choices[1].message.content,
 			})
 		end
-		-- Печатаем ответ от AI
+		-- Printing AI's response
 		self:print_ai_response(response.choices[1].message.content, uuid)
 	end
 
 	if self.cfg.enable_memory then
-		-- Чистим историю чата
+		-- Clearing chat history
 		while #self.history > self.max_history do
 			table.remove(self.history, 1)
 		end
@@ -198,11 +198,11 @@ function BaseCommand:get_response(response, uuid)
 end
 
 function BaseCommand:print_ai_chunk(chunk, uuid)
-	-- переопределяется в дочерних методах
+	-- overridden in child methods
 end
 
 function BaseCommand:print_ai_response(response, uuid)
-	-- переопределяется в дочерних методах
+	-- overridden in child methods
 	LOG:DEBUG("Сработала заглушка - сообщение пришло.")
 end
 
