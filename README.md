@@ -16,16 +16,35 @@ Deepseek.nvim is a Neovim plugin that brings the power of Deepseek AI straight i
 - Deepseek API key
 
 ## Installation
-Example for `packer.nvim`:
+Example for `lazy.nvim`:
 ```lua
-use {
+{
   "ne-moj/deepseek.nvim",
-  dependencies = { 
+  dependencies = {
     "nvim-lua/plenary.nvim",
   },
   config = function()
     require("deepseek").setup({
       api = { key = "YOUR_API_KEY" }
+      -- Optional configuration
+      ui = {
+        window = {
+          default_position = "right", -- float, left, right, top, bottom
+          width = 0.9, -- float window width ratio
+          height = 0.75, -- float window height ratio
+          min_width = 15, -- minimum chat window width
+          min_height = 15, -- minimum chat window height
+          border = "rounded", -- window border style
+        },
+      },
+      core = {
+        chat = {
+          system_prompt = "You are a helpful AI assistant",
+          model = "deepseek-reasoner", -- deepseek-chat | deepseek-reasoner
+          max_history = 10,
+          enable_memory = true,
+        },
+      },
     })
   end,
 }
@@ -34,7 +53,7 @@ use {
 ## Usage
 
 ### Commands
-- `:DeepseekGenerate <prompt>` — generate code in the current buffer
+- `:DeepseekGenerate [prompt]` — generate code in the current line
 - `:DeepseekOptimize` — optimize the selected code
 - `:DeepseekAnalyze [prompt]` — analyze the selected fragment
 - `:DeepseekImprove` — improve the selected text
@@ -46,27 +65,7 @@ Default keymaps are defined (see `lua/deepseek/config.lua`) but can be overridde
 ## Minimal configuration
 ```lua
 require("deepseek").setup({
-  api = {
-    key = "YOUR_API_KEY",
-    url = "https://api.deepseek.com",
-    default_model = "deepseek-chat",
-  },
-  keymaps = {
-    generate_code = "<leader>ag",
-    optimize_code = "<leader>ao",
-    analyze_code  = "<leader>az",
-    translate     = "<leader>at",
-    improve       = "<leader>ai",
-    chat = { default = "<leader>acc" },
-  },
-  ui = {
-    window = {
-      default_position = "float",
-      width = 0.7,
-      height = 0.6,
-      border = "rounded",
-    },
-  },
+  api = { key = "YOUR_API_KEY" }
 })
 ```
 Detailed options can be found in [`lua/deepseek/config.lua`](lua/deepseek/config.lua).

@@ -55,7 +55,7 @@ end
 
 function Chat:create_user_command()
 	vim.api.nvim_create_user_command("DeepseekChat", function(opts)
-		if opts.args then
+		if #opts.args > 0 then
 			ui.set_position(opts.args)
 		end
 		ui.toggle_popup()

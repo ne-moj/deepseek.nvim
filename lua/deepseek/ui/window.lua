@@ -1,4 +1,6 @@
 local buffer = require("deepseek.ui.buffer")
+local LOG = require("deepseek.log")
+
 local M = {}
 
 local position = "float"
@@ -11,6 +13,9 @@ M.input_buf = nil
 
 function M.setup(opts)
 	cfg = opts or {}
+	if cfg.default_position then
+		M.set_position(cfg.default_position)
+	end
 	vim.treesitter.language.register("markdown", "llm")
 
 	M.ns_id = vim.api.nvim_create_namespace("llm_highlight")
