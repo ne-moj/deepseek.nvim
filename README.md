@@ -25,7 +25,7 @@ Example for `lazy.nvim`:
   },
   config = function()
     require("deepseek").setup({
-      api = { key = "YOUR_API_KEY" }
+      api = { key = "YOUR_API_KEY" },
       -- Optional configuration
       ui = {
         window = {
